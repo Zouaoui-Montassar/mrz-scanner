@@ -1,0 +1,7 @@
+{
+  "name": "mrz-scan",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
