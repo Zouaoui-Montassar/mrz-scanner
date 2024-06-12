@@ -1,13 +1,13 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>tabs</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">tabs</ion-title>
-    </ion-toolbar>
-  </ion-header>
-</ion-content>
+<!-- src/app/tabs/tabs.page.html -->
+<ion-tabs>
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="mrz-scanner">
+      <ion-icon name="camera"></ion-icon>
+      <ion-label>MRZ Scanner</ion-label>
+    </ion-tab-button>
+    <ion-tab-button tab="qr-scanner">
+      <ion-icon name="qr-code"></ion-icon>
+      <ion-label>QR Scanner</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>
