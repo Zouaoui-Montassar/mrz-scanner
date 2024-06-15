@@ -4,14 +4,11 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar color="primary">
-      <ion-title size="large">Home page</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div id="container">
-    <ion-text>Home page</ion-text>
-  </div>
+<ion-content class="ion-padding">
+  <p>This application provides two types of scanners:</p>
+  <ul>
+    <li><strong>MRZ Scanner:</strong> Scan Machine Readable Zones on passports and ID cards.</li>
+    <li><strong>QR Scanner:</strong> Quickly scan QR codes to retrieve information.</li>
+  </ul>
+  <p>Select a tab to start scanning.</p>
 </ion-content>
