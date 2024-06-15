@@ -17,18 +17,18 @@ const routes: Routes = [
         loadChildren: () => import('../qr-scanner/qr-scanner.module').then(m => m.QrScannerPageModule)
       },
       {
+        path: 'home',
+        loadChildren: () => import('../home/home.module').then(m => m.HomePageModule)
+      },
+      {
         path: '',
-        redirectTo: '/tabs/mrz-scanner',
+        redirectTo: '/tabs/home',
         pathMatch: 'full'
       }
     ]
-  },
-  {
-    path: '',
-    redirectTo: '/tabs/mrz-scanner',
-    pathMatch: 'full'
   }
 ];
+
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
