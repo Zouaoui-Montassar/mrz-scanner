@@ -5,10 +5,12 @@
 </ion-header>
 
 <ion-content>
-  <video #video autoplay></video>
-  <canvas #canvas style="display: none;"></canvas>
+  <div class="scanner-container">
+    <video #video autoplay></video>
+    <canvas #canvas style="display: none;"></canvas>
+  </div>
 
-  <div *ngIf="capturedImageDataUrl">
+  <div *ngIf="capturedImageDataUrl" class="captured-image">
     <h2>Captured Image</h2>
     <img [src]="capturedImageDataUrl" />
   </div>

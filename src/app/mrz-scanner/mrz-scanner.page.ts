@@ -60,6 +60,8 @@ export class MrzScannerPage {
     const context = canvas.getContext('2d');
 
     if (context) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       this.capturedImageDataUrl = canvas.toDataURL('image/jpeg');
       this.recognizeMRZ();
