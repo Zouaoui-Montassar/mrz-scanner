@@ -1,21 +1,15 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar color="primary">
-    <ion-title>MRZ SCANNER</ion-title>
+    <ion-title>MRZ Scanner</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar color="primary">
-      <ion-title size="large">MRZ SCANNER</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <video #video autoplay></video>
+  <canvas #canvas style="display: none;"></canvas>
 
-  <ion-content>
-    <ion-button (click)="scanMrz()">Scan MRZ</ion-button>
-    <div *ngIf="scannedText">
-      <h2>MRZ Data:</h2>
-      <p>{{ scannedText }}</p>
-    </div>
-  </ion-content>
+  <div *ngIf="capturedImageDataUrl">
+    <h2>Captured Image</h2>
+    <img [src]="capturedImageDataUrl" />
+  </div>
 </ion-content>

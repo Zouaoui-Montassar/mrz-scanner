@@ -1,63 +1,81 @@
-import { Component, OnInit } from '@angular/core';
-import { Camera, CameraResultType } from '@capacitor/camera';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import * as Tesseract from 'tesseract.js';
-
 
 @Component({
   selector: 'app-mrz-scanner',
   templateUrl: './mrz-scanner.page.html',
   styleUrls: ['./mrz-scanner.page.scss'],
 })
-export class MrzScannerPage  {
+export class MrzScannerPage {
+  @ViewChild('video', { static: true }) videoElement!: ElementRef<HTMLVideoElement>;
+  @ViewChild('canvas', { static: true }) canvasElement!: ElementRef<HTMLCanvasElement>;
+  mrzData: string = '';
+  capturedImageDataUrl: string | null = null;
 
-  scannedText: string = '';
+  private scanInterval: any;
 
-  constructor() {}
-
-  async scanMrz() {
-    try {
-      const image = await this.takePicture();
-      if (image) {
-        this.scannedText = await this.recognizeMRZ(image);
-        console.log('MRZ Data:', this.scannedText);
-      } else {
-        console.error('No image captured');
-      }
-    } catch (error) {
-      console.error('Error scanning MRZ:', error);
-    }
+  ionViewDidEnter() {
+    this.initCamera();
+    this.startScanning();
   }
 
-  async takePicture(): Promise<string | null> {
-    try {
-      const image = await Camera.getPhoto({
-        quality: 90,
-        allowEditing: false,
-        resultType: CameraResultType.DataUrl
+  ionViewWillLeave() {
+    this.stopScanning();
+  }
+
+  initCamera() {
+    const video = this.videoElement.nativeElement;
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(stream => {
+        video.srcObject = stream;
+        video.play();
+      })
+      .catch(err => {
+        console.error('Error accessing camera:', err);
       });
+  }
 
-      return image.dataUrl || null;
-    } catch (error) {
-      console.error('Error taking picture:', error);
-      return null;
+  startScanning() {
+    this.scanInterval = setInterval(() => {
+      this.captureImage();
+    }, 10000); // Change the interval to 10 seconds
+  }
+
+  stopScanning() {
+    clearInterval(this.scanInterval);
+    const video = this.videoElement.nativeElement;
+    video.pause();
+    video.srcObject = null;
+  }
+
+  captureImage() {
+    const video = this.videoElement.nativeElement;
+    const canvas = this.canvasElement.nativeElement;
+    const context = canvas.getContext('2d');
+
+    if (context) {
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      this.capturedImageDataUrl = canvas.toDataURL('image/jpeg');
+      this.recognizeMRZ();
     }
   }
 
-  async recognizeMRZ(imageDataUrl: string): Promise<string> {
-    const result = await Tesseract.recognize(
-      imageDataUrl,
-      'eng',
-      {
-        logger: (m: any) => console.log(m)
-      }
-    );
-
-    return this.extractMRZ(result.data.text);
+  recognizeMRZ() {
+    if (this.capturedImageDataUrl) {
+      Tesseract.recognize(this.capturedImageDataUrl, 'eng', { logger: (m: any) => console.log(m) })
+        .then(({ data: { text } }: { data: { text: string } }) => {
+          this.mrzData = text;
+          console.log('MRZ Data:', this.mrzData);
+        });
+    }
   }
-  extractMRZ(text: string): string {
+  /*  data: { text } }: { data: { text: string } } */
+
+  extractMRZ(text: string): string[] {
     const lines = text.split('\n');
     const mrzLines = lines.filter(line => this.isMRZLine(line));
-    return mrzLines.join('\n');
+    return mrzLines;
   }
 
   isMRZLine(line: string): boolean {
