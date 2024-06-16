@@ -52,7 +52,16 @@ export class MrzScannerPage  {
       }
     );
 
-    return result.data.text;
+    return this.extractMRZ(result.data.text);
+  }
+  extractMRZ(text: string): string {
+    const lines = text.split('\n');
+    const mrzLines = lines.filter(line => this.isMRZLine(line));
+    return mrzLines.join('\n');
   }
 
+  isMRZLine(line: string): boolean {
+    const mrzPattern = /^[A-Z0-9<]{10,44}$/;
+    return mrzPattern.test(line.trim());
+  }
 }
