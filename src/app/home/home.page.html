@@ -1,14 +1,13 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-title>Home page</ion-title>
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Home page </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <p>This application provides two types of scanners:</p>
-  <ul>
-    <li><strong>MRZ Scanner:</strong> Scan Machine Readable Zones on passports and ID cards.</li>
-    <li><strong>QR Scanner:</strong> Quickly scan QR codes to retrieve information.</li>
-  </ul>
-  <p>Select a tab to start scanning.</p>
+<ion-content>
+  <ion-button (click)="takePicture()">Take Picture</ion-button>
+  <div *ngIf="capturedImage">
+    <h2>Captured Image:</h2>
+    <img [src]="capturedImage" />
+  </div>
 </ion-content>
