@@ -11,7 +11,11 @@
     </ion-toolbar>
   </ion-header>
 
-  <div id="container">
-    <ion-text>Cam will be here!</ion-text>
-  </div>
+  <ion-content>
+    <ion-button (click)="scanMrz()">Scan MRZ</ion-button>
+    <div *ngIf="scannedText">
+      <h2>MRZ Data:</h2>
+      <p>{{ scannedText }}</p>
+    </div>
+  </ion-content>
 </ion-content>
