@@ -39,15 +39,20 @@ export class MrzScannerPage {
   startScanning() {
     this.scanInterval = setInterval(() => {
       this.captureImage();
-    }, 10000); // Change the interval to 10 seconds
+    }, 10000);
   }
 
   stopScanning() {
     clearInterval(this.scanInterval);
     const video = this.videoElement.nativeElement;
-    video.pause();
+    const stream = video.srcObject as MediaStream;
+    const tracks = stream.getTracks();
+    tracks.forEach(track => {
+      track.stop();
+    });
     video.srcObject = null;
   }
+  
 
   captureImage() {
     const video = this.videoElement.nativeElement;
