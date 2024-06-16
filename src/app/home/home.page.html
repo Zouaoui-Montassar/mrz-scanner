@@ -1,13 +1,35 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Home page </ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>Home Page</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-button (click)="takePicture()">Test camera</ion-button>
-  <div *ngIf="capturedImage">
-    <h2>Captured Image:</h2>
-    <img [src]="capturedImage" />
-  </div>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <h2>MRZ Scanner</h2>
+        <p>
+          Cette application vous permet de scanner la zone lisible par machine (MRZ) des passeports et des cartes d'identité à l'aide de la caméra de votre appareil.
+          Utilisez l'onglet MRZ Scanner pour commencer à scanner et extraire les données MRZ de vos documents.
+        </p>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+        <h2>Testez votre caméra</h2>
+        <p>Vous pouvez également tester votre caméra ci-dessous.
+        </p>
+        <ion-button (click)="takePicture()">Tester votre caméra</ion-button>
+        <div *ngIf="capturedImage">
+          <h2>Image Capturée :</h2>
+          <img [src]="capturedImage" />
+        </div>
+        <div *ngIf="!capturedImage">
+          <ion-text> Aucune image capturée pour l'instant !</ion-text>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

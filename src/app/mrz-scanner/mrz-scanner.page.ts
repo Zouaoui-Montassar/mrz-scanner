@@ -20,7 +20,6 @@ export class MrzScannerPage  {
       if (image) {
         this.scannedText = await this.recognizeMRZ(image);
         console.log('MRZ Data:', this.scannedText);
-        // Process and display MRZ data
       } else {
         console.error('No image captured');
       }
