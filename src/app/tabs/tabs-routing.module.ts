@@ -13,8 +13,8 @@ const routes: Routes = [
         loadChildren: () => import('../mrz-scanner/mrz-scanner.module').then(m => m.MrzScannerPageModule)
       },
       {
-        path: 'qr-scanner',
-        loadChildren: () => import('../qr-scanner/qr-scanner.module').then(m => m.QrScannerPageModule)
+        path: 'identite-scanner',
+        loadChildren: () => import('../identite-scanner/identite-scanner.module').then(m => m.QrScannerPageModule)
       },
       {
         path: 'home',

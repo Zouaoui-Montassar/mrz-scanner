@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-qr-scanner',
-  templateUrl: './qr-scanner.page.html',
-  styleUrls: ['./qr-scanner.page.scss'],
+  templateUrl: './identite-scanner.page.html',
+  styleUrls: ['./identite-scanner.page.scss'],
 })
-export class QrScannerPage implements OnInit {
+export class IdentitePage implements OnInit {
 
   constructor() { }
 
