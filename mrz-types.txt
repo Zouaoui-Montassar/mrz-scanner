@@ -1,0 +1,20 @@
+TD1 : ID cards : 3 LINES , 30 CHARACTERS EACH
+
+TD2 : Travel docs : 2 LINES , 36 CHARACTERS EACH
+
+TD3 : Passport ( machine readable passport ) : 2 LINES , 44 CHARACTERS EACH
+
+First Line:
+Type: Identifies the type of travel document (P for passport).
+Country Code: ISO 3166-1 alpha-3 country code of the issuing country.
+Surname and Given Names: The bearer’s surname followed by two chevrons (<<) and then the given names.
+‍
+
+Second Line:
+Passport Number followed by a check digit.
+Nationality Code (also based on ISO 3166-1 alpha-3).
+Date of Birth followed by a check digit.
+Gender: Male (M), Female (F), or Non-specified (X), followed by a check digit.
+Passport Expiry Date followed by a check digit.
+Personal Number (optional and country-dependent) followed by a check digit.
+Final Check Digit: Covering numbers and check digits from positions 1 to 10 and 14 to 20 in the second line.
