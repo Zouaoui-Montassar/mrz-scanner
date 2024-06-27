@@ -9,8 +9,9 @@ import * as Tesseract from "tesseract.js";
 })
 export class HomePage {
   capturedImage: string | undefined;
+  rescaledImage: string | undefined;
+  ocrText: string = "";
   imageLoadError: boolean = false;
-  mrzData: string = "";
 
   constructor() {}
 
@@ -27,6 +28,7 @@ export class HomePage {
 
       if (this.capturedImage) {
         console.log('Starting OCR process...');
+        this.rescaledImage = await this.rescaleImageTo300DPI(this.capturedImage);
         this.recognizeMRZ();
       }
     } catch (error) {
@@ -41,24 +43,15 @@ export class HomePage {
     this.imageLoadError = true;
   }
 
-  recognizeMRZ() {
-    if (this.capturedImage) {
-      Tesseract.recognize(this.capturedImage, 'eng', {
+  async recognizeMRZ() {
+    if (this.rescaledImage) {
+      Tesseract.recognize(this.rescaledImage, 'eng', {
         tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<', // MRZ code characters
-        psm: Tesseract.PSM.SINGLE_BLOCK, // Assume a single uniform block of text
+        psm: Tesseract.PSM.SPARSE_TEXT, // Assume a single uniform block of text
       })
       .then(({ data: { text } }: { data: { text: string } }) => {
-        // Get the last two non-empty lines
-        console.log(text);
-        const lines = text.split('\n').map(line => line.trim()).filter(line => line !== '');
-        const lastLines = lines.slice(-2);
-
-        // Correct filler characters in the MRZ code
-        const correctedLines = this.correctFillerCharacters(lastLines);
-
-        // Join the corrected lines into the final MRZ code
-        this.mrzData = correctedLines.join('\n');
-        console.log('Corrected MRZ code:', this.mrzData);
+        this.ocrText = text;
+        console.log('OCR Text:', this.ocrText);
       })
       .catch((error: any) => {
         console.error('Error recognizing MRZ', error);
@@ -66,26 +59,33 @@ export class HomePage {
     }
   }
 
-  correctFillerCharacters(lines: string[]): string[] {
-    // Define the expected lengths for each field in the MRZ TD3 code
-    const fieldLengths = [1, 9, 15, 30, 7, 7, 1, 14, 1, 14, 7];
+  async rescaleImageTo300DPI(dataUrl: string): Promise<string> {
+    const img = new Image();
+    img.src = dataUrl;
 
-    return lines.map(line => {
-      // Split the line into individual characters
-      const characters = line.split('');
+    return new Promise<string>((resolve) => {
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
 
-      // Iterate over the characters and correct filler characters based on the expected lengths
-      characters.forEach((char, index) => {
-        const expectedLength = fieldLengths[index];
-        if (char === 'L' && characters.slice(index, index + expectedLength).every(c => c === '<')) {
-          // Replace 'L' with '<' if it appears in a sequence of '<' characters
-          characters[index] = '<';
+        if (ctx) {
+          const originalWidth = img.width;
+          const originalHeight = img.height;
+
+          // Calculate the new width and height to achieve 300 DPI
+          const targetDPI = 300;
+          const originalDPI = 72; // Assuming the original DPI is 72
+          const scaleFactor = targetDPI / originalDPI;
+
+          const newWidth = originalWidth * scaleFactor;
+          const newHeight = originalHeight * scaleFactor;
+
+          canvas.width = newWidth;
+          canvas.height = newHeight;
+          ctx.drawImage(img, 0, 0, newWidth, newHeight);
+          resolve(canvas.toDataURL('image/jpeg'));
         }
-      });
-
-      // Join the characters back into a string
-      return characters.join('');
+      };
     });
   }
-
 }
