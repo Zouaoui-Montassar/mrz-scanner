@@ -12,6 +12,7 @@ export class HomePage {
   rescaledImage: string | undefined;
   ocrText: string = "";
   imageLoadError: boolean = false;
+  lastTwoLines: string = "";
 
   constructor() {}
 
@@ -52,6 +53,7 @@ export class HomePage {
       .then(({ data: { text } }: { data: { text: string } }) => {
         this.ocrText = text;
         console.log('OCR Text:', this.ocrText);
+        this.extractLastTwoLines();
       })
       .catch((error: any) => {
         console.error('Error recognizing MRZ', error);
@@ -87,5 +89,14 @@ export class HomePage {
         }
       };
     });
+  }
+  extractLastTwoLines() {
+    const lines = this.ocrText.split('\n').filter(line => line.trim() !== '');
+    if (lines.length >= 2) {
+      this.lastTwoLines = lines.slice(-2).join('\n');
+    } else {
+      this.lastTwoLines = lines.join('\n');
+    }
+    console.log('Last Two Lines:', this.lastTwoLines);
   }
 }
