@@ -4,17 +4,17 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { MrzScannerPageRoutingModule } from './mrz-scanner-routing.module';
+import { LiveScannerPageRoutingModule } from './live-scanner-routing.module';
 
-import { MrzScannerPage } from './mrz-scanner.page';
+import { LiveScannerPage } from './live-scanner.page';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    MrzScannerPageRoutingModule
+    LiveScannerPageRoutingModule
   ],
-  declarations: [MrzScannerPage]
+  declarations: [LiveScannerPage]
 })
-export class MrzScannerPageModule {}
+export class LiveScannerPageModule {}

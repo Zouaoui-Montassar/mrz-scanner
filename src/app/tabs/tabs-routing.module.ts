@@ -9,8 +9,8 @@ const routes: Routes = [
     component: TabsPage,
     children: [
       {
-        path: 'mrz-scanner',
-        loadChildren: () => import('../mrz-scanner/mrz-scanner.module').then(m => m.MrzScannerPageModule)
+        path: 'live-scanner',
+        loadChildren: () => import('../live-scanner/live-scanner.module').then(m => m.LiveScannerPageModule)
       },
       {
         path: 'identite-scanner',

@@ -2,11 +2,11 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import * as Tesseract from 'tesseract.js';
 
 @Component({
-  selector: 'app-mrz-scanner',
-  templateUrl: './mrz-scanner.page.html',
-  styleUrls: ['./mrz-scanner.page.scss'],
+  selector: 'app-live-scanner',
+  templateUrl: './live-scanner.page.html',
+  styleUrls: ['./live-scanner.page.scss'],
 })
-export class MrzScannerPage {
+export class LiveScannerPage {
   @ViewChild('video', { static: true }) videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas', { static: true }) canvasElement!: ElementRef<HTMLCanvasElement>;
   mrzData: string = '';
