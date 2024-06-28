@@ -12,7 +12,8 @@ export class HomePage {
   rescaledImage: string | undefined;
   ocrText: string = "";
   imageLoadError: boolean = false;
-  lastTwoLines: string = "";
+  firstline: string = "";
+  secondline: string = "";
 
   constructor() {}
 
@@ -53,7 +54,7 @@ export class HomePage {
       .then(({ data: { text } }: { data: { text: string } }) => {
         this.ocrText = text;
         console.log('OCR Text:', this.ocrText);
-        this.extractLastTwoLines();
+        this.extractAndCorrectMRZ();
       })
       .catch((error: any) => {
         console.error('Error recognizing MRZ', error);
@@ -90,13 +91,66 @@ export class HomePage {
       };
     });
   }
-  extractLastTwoLines() {
+
+  extractAndCorrectMRZ() {
     const lines = this.ocrText.split('\n').filter(line => line.trim() !== '');
     if (lines.length >= 2) {
-      this.lastTwoLines = lines.slice(-2).join('\n');
+      this.firstline = lines[lines.length - 2];
+      this.secondline = lines[lines.length - 1];
+      this.correctMRZLines();
     } else {
-      this.lastTwoLines = lines.join('\n');
+      console.error('Insufficient lines for MRZ code');
     }
-    console.log('Last Two Lines:', this.lastTwoLines);
   }
+
+  correctMRZLines() {
+    // Correct the first line
+    this.firstline = 'P<' + this.firstline.substring(2);
+  
+    // Replace sequences of 'C', 'K', and 'L' with '<'
+    const charsToReplace = ['C', 'K', 'L'];
+    let consecutiveChars = 0;
+    for (let i = 2; i < this.firstline.length; i++) {
+      if (charsToReplace.includes(this.firstline[i])) {
+        consecutiveChars++;
+        if (consecutiveChars >= 3) {
+          this.firstline = this.firstline.substring(0, i - 2) + '<'.repeat(this.firstline.length - (i - 2));
+          break;
+        }
+      } else {
+        consecutiveChars = 0;
+      }
+    }
+  
+    const firstLineEndIndex = this.firstline.indexOf('<<<<');
+    if (firstLineEndIndex !== -1) {
+      this.firstline = this.firstline.substring(0, firstLineEndIndex + 4).padEnd(this.firstline.length, '<');
+    }
+  
+    console.log('Corrected First Line:', this.firstline, this.firstline.length);
+    console.log('Corrected Second Line:', this.secondline, this.secondline.length);
+  
+    const extractedData = this.extractDataFromFirstLine(this.firstline);
+    console.log('Extracted Data from First Line:', extractedData);
+  }
+  
+  extractDataFromFirstLine(firstline: string) {
+    const type = firstline.charAt(0); // First character (Type)
+    const country = firstline.substring(2, 5); // Characters at positions 2-4 (Country Code)
+    
+    // Extracting names
+    const namesSection = firstline.substring(5).split('<<');
+    const surname = namesSection[0]; // Surname
+    const givenNames = namesSection.slice(1).join(' '); // Given Names
+  
+    return {
+      type,
+      country,
+      surname,
+      givenNames,
+    };
+  }
+  
+  
 }
+
