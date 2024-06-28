@@ -14,7 +14,11 @@ const routes: Routes = [
       },
       {
         path: 'identite-scanner',
-        loadChildren: () => import('../identite-scanner/identite-scanner.module').then(m => m.QrScannerPageModule)
+        loadChildren: () => import('../identite-scanner/identite-scanner.module').then(m => m.IdentitePageModule)
+      },
+      {
+        path: 'passport-scanner',
+        loadChildren: () => import('../passport-scanner/passport-scanner.module').then(m => m.PassportScannerPageModule)
       },
       {
         path: 'home',

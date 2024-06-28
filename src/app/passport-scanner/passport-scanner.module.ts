@@ -4,17 +4,17 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { IdentitePageRoutingModule } from './identite-scanner-routing.module';
+import { PassportScannerPageRoutingModule } from './passport-scanner-routing.module';
 
-import { IdentitePage } from './identite-scanner.page';
+import { PassportScannerPage } from './passport-scanner.page';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    IdentitePageRoutingModule
+    PassportScannerPageRoutingModule
   ],
-  declarations: [IdentitePage]
+  declarations: [PassportScannerPage]
 })
-export class IdentitePageModule {}
+export class PassportScannerPageModule {}
