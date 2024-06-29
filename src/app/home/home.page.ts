@@ -14,6 +14,7 @@ export class HomePage {
   imageLoadError: boolean = false;
   firstline: string = "";
   secondline: string = "";
+  parsedData: any = {};
 
   constructor() {}
 
@@ -130,10 +131,13 @@ export class HomePage {
     console.log('Corrected First Line:', this.firstline, this.firstline.length);
     console.log('Corrected Second Line:', this.secondline, this.secondline.length);
   
-    const extractedData = this.extractDataFromFirstLine(this.firstline);
-    console.log('Extracted Data from First Line:', extractedData);
+    this.parsedData = {
+      ...this.extractDataFromFirstLine(this.firstline),
+      ...this.extractDataFromSecondLine(this.secondline)
+    };
+    console.log('Extracted Data:', this.parsedData);
   }
-  
+
   extractDataFromFirstLine(firstline: string) {
     const type = firstline.charAt(0); // First character (Type)
     const country = firstline.substring(2, 5); // Characters at positions 2-4 (Country Code)
@@ -150,7 +154,32 @@ export class HomePage {
       givenNames,
     };
   }
-  
-  
-}
 
+  extractDataFromSecondLine(secondline: string) {
+    const passportNumber = secondline.substring(0, 9).replace(/</g, '');
+    const passportNumberCheckDigit = secondline.substring(9, 10);
+    const nationality = secondline.substring(10, 13).replace(/</g, '');
+    const dateOfBirth = secondline.substring(13, 19);
+    const dateOfBirthCheckDigit = secondline.substring(19, 20);
+    const sex = secondline.substring(20, 21);
+    const dateOfExpiry = secondline.substring(21, 27);
+    const dateOfExpiryCheckDigit = secondline.substring(27, 28);
+    const personalNumber = secondline.substring(28, 42).replace(/</g, '');
+    const personalNumberCheckDigit = secondline.substring(42, 43);
+    const compositeCheckDigit = secondline.substring(43, 44);
+  
+    return {
+      passportNumber,
+      passportNumberCheckDigit,
+      nationality,
+      dateOfBirth,
+      dateOfBirthCheckDigit,
+      sex,
+      dateOfExpiry,
+      dateOfExpiryCheckDigit,
+      personalNumber,
+      personalNumberCheckDigit,
+      compositeCheckDigit,
+    };
+  }
+}
