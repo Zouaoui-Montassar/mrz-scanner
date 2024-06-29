@@ -21,6 +21,10 @@ const routes: Routes = [
         loadChildren: () => import('../passport-scanner/passport-scanner.module').then(m => m.PassportScannerPageModule)
       },
       {
+        path: 'stored-codes',
+        loadChildren: () => import('../stored-codes/stored-codes.module').then(m => m.StoredCodesPageModule)
+      },
+      {
         path: 'home',
         loadChildren: () => import('../home/home.module').then(m => m.HomePageModule)
       },
