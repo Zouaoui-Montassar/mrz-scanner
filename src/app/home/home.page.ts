@@ -150,31 +150,42 @@ export class HomePage {
     const type = firstline.charAt(0);
     const country = firstline.substring(2, 5);
     
-    // Splitting names section based on '<<' or '<'
-    let namesSection: string[];
-    if (firstline.includes('<<')) {
-        namesSection = firstline.substring(5).split('<<');
-    } else {
-        namesSection = firstline.substring(5).split('<');
+    // Finding the start of the given names section after the surname
+    let startIndex = 5;
+    while (startIndex < firstline.length && firstline.charAt(startIndex) !== '<') {
+      startIndex++;
     }
-    
-    // Extracting surname and given names
-    let surname = namesSection[0].replace(/</g, '');
-    let givenNames = namesSection.slice(1).join(' ').replace(/</g, '');
-
-    // Handling special cases where '<<' or '<' could be misplaced
-    if (givenNames.startsWith('<')) {
-        surname += ' ' + givenNames.substring(0, givenNames.indexOf('<')).replace(/</g, '');
-        givenNames = givenNames.substring(givenNames.indexOf('<') + 1).replace(/</g, '');
+  
+    // Extracting surname
+    let surname = firstline.substring(5, startIndex).replace(/</g, '');
+  
+    // Extracting given names
+    let givenNames = '';
+    let i = startIndex;
+    while (i < firstline.length) {
+      if (firstline.charAt(i) === '<') {
+        givenNames += ' ';
+        i++;
+      } else {
+        givenNames += firstline.charAt(i);
+        i++;
+      }
     }
-
+  
+    // Trim any extra spaces from extracted values
+    type.trim();
+    country.trim();
+    surname = surname.trim();
+    givenNames = givenNames.trim();
+  
     return {
-        type,
-        country,
-        surname,
-        givenNames,
+      type,
+      country,
+      surname,
+      givenNames,
     };
-}
+  }
+  
 
 
   extractDataFromSecondLine(secondline: string) {
