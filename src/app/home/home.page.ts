@@ -48,18 +48,17 @@ export class HomePage {
 
   async recognizeMRZ() {
     if (this.rescaledImage) {
-      Tesseract.recognize(this.rescaledImage, 'eng', {
-        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<', // MRZ code characters
-        psm: Tesseract.PSM.SPARSE_TEXT, // Assume a single uniform block of text
-      })
-      .then(({ data: { text } }: { data: { text: string } }) => {
+      try {
+        const { data: { text } } = await Tesseract.recognize(this.rescaledImage, 'eng', {
+          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<',
+          psm: Tesseract.PSM.SPARSE_TEXT,
+        });
         this.ocrText = text;
         console.log('OCR Text:', this.ocrText);
         this.extractAndCorrectMRZ();
-      })
-      .catch((error: any) => {
+      } catch (error) {
         console.error('Error recognizing MRZ', error);
-      });
+      }
     }
   }
 
@@ -75,10 +74,8 @@ export class HomePage {
         if (ctx) {
           const originalWidth = img.width;
           const originalHeight = img.height;
-
-          // Calculate the new width and height to achieve 300 DPI
           const targetDPI = 300;
-          const originalDPI = 72; // Assuming the original DPI is 72
+          const originalDPI = 72;
           const scaleFactor = targetDPI / originalDPI;
 
           const newWidth = originalWidth * scaleFactor;
@@ -99,61 +96,86 @@ export class HomePage {
       this.firstline = lines[lines.length - 2];
       this.secondline = lines[lines.length - 1];
       this.correctMRZLines();
+      this.parsedData = {
+        ...this.extractDataFromFirstLine(this.firstline),
+        ...this.extractDataFromSecondLine(this.secondline)
+      };
+      console.log('Extracted Data:', this.parsedData);
     } else {
       console.error('Insufficient lines for MRZ code');
     }
   }
 
   correctMRZLines() {
-    // Correct the first line
-    this.firstline = 'P<' + this.firstline.substring(2);
-  
-    // Replace sequences of 'C', 'K', and 'L' with '<'
+    this.firstline = this.correctFirstLine(this.firstline);
+    this.secondline = this.correctSecondLine(this.secondline);
+    console.log('Corrected First Line:', this.firstline, this.firstline.length);
+    console.log('Corrected Second Line:', this.secondline, this.secondline.length);
+  }
+
+  correctFirstLine(firstline: string): string {
+    firstline = 'P<' + firstline.substring(2);
+
     const charsToReplace = ['C', 'K', 'L'];
     let consecutiveChars = 0;
-    for (let i = 2; i < this.firstline.length; i++) {
-      if (charsToReplace.includes(this.firstline[i])) {
+    for (let i = 2; i < firstline.length; i++) {
+
+      if (charsToReplace.includes(firstline[i])) {
         consecutiveChars++;
         if (consecutiveChars >= 3) {
-          this.firstline = this.firstline.substring(0, i - 2) + '<'.repeat(this.firstline.length - (i - 2));
+          firstline = firstline.substring(0, i - 2) + '<'.repeat(firstline.length - (i - 2));
           break;
         }
       } else {
         consecutiveChars = 0;
       }
+
+
     }
-  
-    const firstLineEndIndex = this.firstline.indexOf('<<<<');
+
+    const firstLineEndIndex = firstline.indexOf('<<<<');
     if (firstLineEndIndex !== -1) {
-      this.firstline = this.firstline.substring(0, firstLineEndIndex + 4).padEnd(this.firstline.length, '<');
+      firstline = firstline.substring(0, firstLineEndIndex + 4).padEnd(firstline.length, '<');
     }
-  
-    console.log('Corrected First Line:', this.firstline, this.firstline.length);
-    console.log('Corrected Second Line:', this.secondline, this.secondline.length);
-  
-    this.parsedData = {
-      ...this.extractDataFromFirstLine(this.firstline),
-      ...this.extractDataFromSecondLine(this.secondline)
-    };
-    console.log('Extracted Data:', this.parsedData);
+
+    return firstline;
+  }
+
+  correctSecondLine(secondline: string): string {
+    // Correct logic for the second line if needed
+    return secondline; 
   }
 
   extractDataFromFirstLine(firstline: string) {
-    const type = firstline.charAt(0); // First character (Type)
-    const country = firstline.substring(2, 5); // Characters at positions 2-4 (Country Code)
+    const type = firstline.charAt(0);
+    const country = firstline.substring(2, 5);
     
-    // Extracting names
-    const namesSection = firstline.substring(5).split('<<');
-    const surname = namesSection[0]; // Surname
-    const givenNames = namesSection.slice(1).join(' '); // Given Names
-  
+    // Splitting names section based on '<<' or '<'
+    let namesSection: string[];
+    if (firstline.includes('<<')) {
+        namesSection = firstline.substring(5).split('<<');
+    } else {
+        namesSection = firstline.substring(5).split('<');
+    }
+    
+    // Extracting surname and given names
+    let surname = namesSection[0].replace(/</g, '');
+    let givenNames = namesSection.slice(1).join(' ').replace(/</g, '');
+
+    // Handling special cases where '<<' or '<' could be misplaced
+    if (givenNames.startsWith('<')) {
+        surname += ' ' + givenNames.substring(0, givenNames.indexOf('<')).replace(/</g, '');
+        givenNames = givenNames.substring(givenNames.indexOf('<') + 1).replace(/</g, '');
+    }
+
     return {
-      type,
-      country,
-      surname,
-      givenNames,
+        type,
+        country,
+        surname,
+        givenNames,
     };
-  }
+}
+
 
   extractDataFromSecondLine(secondline: string) {
     const passportNumber = secondline.substring(0, 9).replace(/</g, '');
@@ -161,13 +183,26 @@ export class HomePage {
     const nationality = secondline.substring(10, 13).replace(/</g, '');
     const dateOfBirth = secondline.substring(13, 19);
     const dateOfBirthCheckDigit = secondline.substring(19, 20);
-    const sex = secondline.substring(20, 21);
+    let sex = secondline.substring(20, 21);
     const dateOfExpiry = secondline.substring(21, 27);
     const dateOfExpiryCheckDigit = secondline.substring(27, 28);
     const personalNumber = secondline.substring(28, 42).replace(/</g, '');
     const personalNumberCheckDigit = secondline.substring(42, 43);
     const compositeCheckDigit = secondline.substring(43, 44);
-  
+
+
+    if (sex !== 'F' && sex !== 'M') {
+      const before = secondline.substring(19, 20);
+      const after = secondline.substring(21, 22);
+      if (before === 'F' || before === 'M') {
+        sex = before;
+      } else if (after === 'F' || after === 'M') {
+        sex = after;
+      } else {
+        sex = '<'; 
+      }
+    }
+
     return {
       passportNumber,
       passportNumberCheckDigit,
