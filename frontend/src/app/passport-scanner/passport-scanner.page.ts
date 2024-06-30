@@ -162,7 +162,6 @@ export class PassportScannerPage {
   }
 
   correctSecondLine(secondline: string): string {
-    // Correct logic for the second line if needed
     return secondline; 
   }
 
@@ -170,16 +169,15 @@ export class PassportScannerPage {
     const type = firstline.charAt(0);
     const country = firstline.substring(2, 5);
     
-    // Finding the start of the given names section after the surname
+
     let startIndex = 5;
     while (startIndex < firstline.length && firstline.charAt(startIndex) !== '<') {
       startIndex++;
     }
   
-    // Extracting surname
+
     let surname = firstline.substring(5, startIndex).replace(/</g, '');
-  
-    // Extracting given names
+
     let givenNames = '';
     let i = startIndex;
     while (i < firstline.length) {
@@ -191,8 +189,7 @@ export class PassportScannerPage {
         i++;
       }
     }
-  
-    // Trim any extra spaces from extracted values
+
     type.trim();
     country.trim();
     surname = surname.trim();
@@ -273,7 +270,6 @@ export class PassportScannerPage {
 
   saveData() {
     console.log('Saving data:', this.passportForm.value);
-    // Add logic to save data
   }
 
   discardData() {
