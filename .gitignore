@@ -5,3 +5,5 @@ backend/node_modules/
 frontend/android
 frontend/www
 frontend/.angular
+
+backend/.env
