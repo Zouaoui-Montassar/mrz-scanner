@@ -12,6 +12,18 @@
   </ion-header>
 
   <div id="container">
-    <ion-text>Stored codes</ion-text>
+    <ion-list>
+      <ion-item *ngFor="let passport of passports">
+        <ion-label>
+          <h2>{{ passport.surname }} {{ passport.givenNames }}</h2>
+          <p>{{ passport.passportNumber }}</p>
+          <p>{{ passport.type }} - {{ passport.country }}</p>
+          <p>{{ passport.nationality }}</p>
+          <p>{{ passport.dateOfBirth }} - {{ passport.sex }}</p>
+          <p>{{ passport.dateOfExpiry }}</p>
+          <p>{{ passport.personalNumber }}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
   </div>
 </ion-content>

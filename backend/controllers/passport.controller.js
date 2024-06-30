@@ -19,6 +19,25 @@ const addPassport = async (req, res) => {
   }
 };
 
+const getPassports = async (req, res) => {
+  try {
+    const passports = await Passport.find();
+    res.status(200).json({
+      success: true,
+      message: 'Passports retrieved successfully',
+      data: passports,
+    });
+  } catch (err) {
+    console.error('Error retrieving passports:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve passports',
+      error: err.message,
+    });
+  }
+};
+
 module.exports = {
   addPassport,
+  getPassports
 };
