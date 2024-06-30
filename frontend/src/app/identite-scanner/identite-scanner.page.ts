@@ -1,34 +1,47 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Camera, CameraResultType } from '@capacitor/camera';
-import * as Tesseract from "tesseract.js";
+import * as Tesseract from 'tesseract.js';
+import { FormBuilder, FormGroup } from '@angular/forms';
+
 @Component({
-  selector: 'app-qr-scanner',
+  selector: 'app-identite-scanner',
   templateUrl: './identite-scanner.page.html',
   styleUrls: ['./identite-scanner.page.scss'],
 })
 export class IdentitePage {
   capturedImage: string | undefined;
   rescaledImage: string | undefined;
-  ocrText: string = "";
+  ocrText: string = '';
   imageLoadError: boolean = false;
-  firstline: string = "";
-  secondline: string = "";
-  thirdline: string = "";
   parsedData: any = {};
-
-  constructor() {}
+  idCardForm: FormGroup;
+  isLoading = false;
+  constructor(private formBuilder: FormBuilder) {
+    this.idCardForm = this.formBuilder.group({
+      type: [''],
+      issuingCountry: [''],
+      lastName: [''],
+      firstName: [''],
+      documentNumber: [''],
+      nationality: [''],
+      dateOfBirth: [''],
+      sex: [''],
+      dateOfExpiry: [''],
+      optionalData: [''],
+    });
+  }
 
   async takePicture() {
     try {
       const image = await Camera.getPhoto({
         quality: 90,
         allowEditing: false,
-        resultType: CameraResultType.DataUrl
+        resultType: CameraResultType.DataUrl,
       });
 
       this.capturedImage = image.dataUrl;
       this.imageLoadError = false;
-
+      this.isLoading= true;
       if (this.capturedImage) {
         console.log('Starting OCR process...');
         this.rescaledImage = await this.rescaleImageTo300DPI(this.capturedImage);
@@ -56,6 +69,7 @@ export class IdentitePage {
         this.ocrText = text;
         console.log('OCR Text:', this.ocrText);
         this.extractAndCorrectMRZ();
+        this.isLoading= false;
       } catch (error) {
         console.error('Error recognizing MRZ', error);
       }
@@ -90,46 +104,36 @@ export class IdentitePage {
     });
   }
 
-extractAndCorrectMRZ() {
+  extractAndCorrectMRZ() {
     const lines = this.ocrText.split('\n').filter(line => line.trim() !== '');
     if (lines.length >= 3) {
-      this.firstline = lines[lines.length - 3];
-      this.secondline = lines[lines.length - 2];
-      this.thirdline = lines[lines.length - 1];
-      this.correctMRZLines();
+      const firstline = lines[lines.length - 3];
+      const secondline = lines[lines.length - 2];
+      const thirdline = lines[lines.length - 1];
+      
       this.parsedData = {
-        ...this.extractDataFromFirstLine(this.firstline),
-        ...this.extractDataFromSecondLine(this.secondline),
-        ...this.extractDataFromThirdLine(this.thirdline)
+        ...this.extractDataFromFirstLine(firstline),
+        ...this.extractDataFromSecondLine(secondline),
+        ...this.extractDataFromThirdLine(thirdline)
       };
       console.log('Extracted Data:', this.parsedData);
+
+
+      this.idCardForm.patchValue({
+        type: this.parsedData.documentType,
+        issuingCountry: this.parsedData.issuingCountry,
+        lastName: this.parsedData.lastName,
+        firstName: this.parsedData.firstName,
+        documentNumber: this.parsedData.documentNumber,
+        nationality: this.parsedData.nationality,
+        dateOfBirth: this.parsedData.dateOfBirth,
+        sex: this.parsedData.sex,
+        dateOfExpiry: this.parsedData.dateOfExpiry,
+        optionalData: this.parsedData.optionalData,
+      });
     } else {
       console.error('Insufficient lines for MRZ code');
     }
-  }
-
-  correctMRZLines() {
-    this.firstline = this.correctFirstLine(this.firstline);
-    this.secondline = this.correctSecondLine(this.secondline);
-    this.thirdline = this.correctThirdLine(this.thirdline);
-    console.log('Corrected First Line:', this.firstline, this.firstline.length);
-    console.log('Corrected Second Line:', this.secondline, this.secondline.length);
-    console.log('Corrected Third Line:', this.thirdline, this.thirdline.length);
-  }
-
-  correctFirstLine(firstline: string): string {
-    // Implement TD1-specific corrections for the first line if needed
-    return firstline;
-  }
-
-  correctSecondLine(secondline: string): string {
-    // Implement TD1-specific corrections for the second line if needed
-    return secondline; 
-  }
-
-  correctThirdLine(thirdline: string): string {
-    // Implement TD1-specific corrections for the third line if needed
-    return thirdline;
   }
 
   extractDataFromFirstLine(firstline: string) {
@@ -155,7 +159,7 @@ extractAndCorrectMRZ() {
     const sex = secondline.substring(20, 21);
     const dateOfExpiry = secondline.substring(21, 27);
     const dateOfExpiryCheckDigit = secondline.substring(27, 28);
-    const optionalData = secondline.substring(28, 30).replace(/</g, '');
+    const optionalData = secondline.substring(28, 30).replace(/</g, ' ');
     
     return {
       documentNumber,
@@ -171,10 +175,20 @@ extractAndCorrectMRZ() {
   }
 
   extractDataFromThirdLine(thirdline: string) {
-    const optionalData2 = thirdline.substring(0, 30).replace(/</g, '');
+    const optionalData2 = thirdline.substring(0, 30).replace(/</g, ' ');
     
     return {
       optionalData2,
     };
+  }
+  saveData() {
+    console.log('Saving data:', this.idCardForm.value);
+  }
+
+  discardData() {
+    console.log('Discarding data');
+    this.capturedImage = undefined;
+    this.parsedData = {};
+    this.idCardForm.reset();
   }
 }

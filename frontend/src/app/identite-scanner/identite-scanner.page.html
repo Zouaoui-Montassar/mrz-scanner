@@ -6,39 +6,88 @@
 
 <ion-content>
   <ion-grid>
-    <ion-row>
+    <ion-row class="ion-padding-top">
       <ion-col>
-        <h2>TD1 ID CARD</h2>
-        
+        <h2>TD1 IDENTITE &#x28; inadapté &#x29;</h2>
       </ion-col>
     </ion-row>
 
-    <ion-row>
+    <ion-row class="ion-padding">
       <ion-col>
-        <p>Prendre une photo du passport pour extraire les informations a partir du code MRZ.</p>
-        <ion-button (click)="takePicture()">Prendre une photo</ion-button>
-        <div *ngIf="capturedImage">
-          <h2>Image Capturée :</h2>
-          <img [src]="capturedImage" (error)="onImageError()" />
-          <ion-text *ngIf="imageLoadError" color="danger">
-            Erreur de chargement de l'image. Veuillez réessayer.
-          </ion-text>
-        </div> 
-         <!-- <div *ngIf="!capturedImage && !imageLoadError">
-          <ion-text> Aucune image capturée pour l'instant !</ion-text>
-        </div>  -->
-        
-         <div *ngIf="rescaledImage">
-          <h2>Image Redimensionnée :</h2>
-          <img [src]="rescaledImage" alt="Rescaled Image" />
-        </div>
-        
-        <div *ngIf="ocrText">
-          <h2>Texte OCR :</h2>
-          <pre>{{ ocrText }}</pre>
-        </div>
-        
+        <p>Prendre une photo du passport pour extraire les details a partir du code MRZ.</p>
+        <ion-button expand="block" (click)="takePicture()">Prendre une photo</ion-button>
+      </ion-col>
+    </ion-row>
 
+    <ion-row class="ion-padding" *ngIf="isLoading">
+      <ion-col class="ion-text-center">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Traitement de l'image...</p>
+      </ion-col>
+    </ion-row>
+    
+    <ion-row class="ion-padding">
+      <ion-col class="ion-text-center">
+        <h3>Details du code reconnu</h3>
+      </ion-col>
+    </ion-row>
+
+    <ion-row class="ion-padding">
+      <ion-col>
+        <form [formGroup]="idCardForm" (ngSubmit)="saveData()">
+          <ion-item lines="full">
+            <ion-label>Type de passeport</ion-label>
+            <ion-input formControlName="type" [value]="parsedData?.documentType || ''" readonly></ion-input>
+          </ion-item>
+          <ion-item lines="full">
+            <ion-label>Pays</ion-label>
+            <ion-input formControlName="issuingCountry" [value]="parsedData?.issuingCountry || ''" readonly></ion-input>
+          </ion-item>
+          <ion-item lines="full">
+            <ion-label>Nom de famille</ion-label>
+            <ion-input formControlName="lastName" [value]="parsedData?.lastName || ''" readonly></ion-input>
+          </ion-item>
+          <ion-item lines="full">
+            <ion-label>Prénoms</ion-label>
+            <ion-input formControlName="optionalData" [value]="parsedData?.optionalData2 || ''" readonly></ion-input>
+          </ion-item>
+          <ion-item lines="full">
+            <ion-label>Numéro de passeport</ion-label>
+            <ion-input formControlName="documentNumber" [value]="parsedData?.documentNumber || ''" readonly></ion-input>
+          </ion-item>
+          <ion-item lines="full">
+            <ion-label>Nationalité</ion-label>
+            <ion-input formControlName="nationality" [value]="parsedData?.nationality || ''" readonly></ion-input>
+          </ion-item>
+          <ion-item lines="full">
+            <ion-label>Date de naissance</ion-label>
+            <ion-input formControlName="dateOfBirth" [value]="parsedData?.dateOfBirth || ''" readonly></ion-input>
+          </ion-item>
+          <ion-item lines="full">
+            <ion-label>Sexe</ion-label>
+            <ion-input formControlName="sex" [value]="parsedData?.sex || ''" readonly></ion-input>
+          </ion-item>
+          <ion-item lines="full">
+            <ion-label>Date d'expiration</ion-label>
+            <ion-input formControlName="dateOfExpiry" [value]="parsedData?.dateOfExpiry || ''" readonly></ion-input>
+          </ion-item>
+          <ion-item lines="full">
+            <ion-label>Numéro personnel</ion-label>
+            <ion-input formControlName="optionalData" [value]="parsedData?.optionalData || ''" readonly></ion-input>
+          </ion-item>
+          
+
+          <ion-row class="ion-margin-top">
+            <ion-col>
+              <ion-button color="danger" expand="full" (click)="discardData()">Réinitialiser </ion-button>
+            </ion-col>
+            <ion-col>
+              <ion-button type="submit" expand="full">Sauvegarder</ion-button>
+            </ion-col>
+            
+            
+          </ion-row>
+        </form>
       </ion-col>
     </ion-row>
   </ion-grid>
