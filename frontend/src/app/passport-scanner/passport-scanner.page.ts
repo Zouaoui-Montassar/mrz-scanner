@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Camera, CameraResultType } from '@capacitor/camera';
 import * as Tesseract from "tesseract.js";
-
+import { FormBuilder, FormGroup } from '@angular/forms';
 @Component({
   selector: 'app-passport-scanner',
   templateUrl: './passport-scanner.page.html',
@@ -15,8 +15,26 @@ export class PassportScannerPage {
   firstline: string = "";
   secondline: string = "";
   parsedData: any = {};
+  isLoading = false;
+  passportForm: FormGroup;
 
-  constructor() {}
+  constructor(private fb: FormBuilder) {
+    this.passportForm = this.fb.group({
+      type: [''],
+      country: [''],
+      surname: [''],
+      givenNames: [''],
+      passportNumber: [''],
+      nationality: [''],
+      dateOfBirth: [''],
+      sex: [''],
+      dateOfExpiry: [''],
+      personalNumber: [''],
+    });
+  }
+
+  ngOnInit() {}
+
 
   async takePicture() {
     try {
@@ -28,7 +46,7 @@ export class PassportScannerPage {
 
       this.capturedImage = image.dataUrl;
       this.imageLoadError = false;
-
+      this.isLoading= true;
       if (this.capturedImage) {
         console.log('Starting OCR process...');
         this.rescaledImage = await this.rescaleImageTo300DPI(this.capturedImage);
@@ -56,6 +74,8 @@ export class PassportScannerPage {
         this.ocrText = text;
         console.log('OCR Text:', this.ocrText);
         this.extractAndCorrectMRZ();
+        this.isLoading= false;
+        this.updateForm();
       } catch (error) {
         console.error('Error recognizing MRZ', error);
       }
@@ -227,5 +247,39 @@ export class PassportScannerPage {
       personalNumberCheckDigit,
       compositeCheckDigit,
     };
+  }
+
+  formatDate(dateString: string): string {
+    const year = dateString.substring(0, 2);
+    const month = dateString.substring(2, 4);
+    const day = dateString.substring(4, 6);
+    return `${day}/${month}/20${year}`;
+  }
+
+  updateForm() {
+    this.passportForm.setValue({
+      type: this.parsedData.type,
+      country: this.parsedData.country,
+      surname: this.parsedData.surname,
+      givenNames: this.parsedData.givenNames,
+      passportNumber: this.parsedData.passportNumber,
+      nationality: this.parsedData.nationality,
+      dateOfBirth: this.parsedData.dateOfBirth,
+      sex: this.parsedData.sex,
+      dateOfExpiry: this.parsedData.dateOfExpiry,
+      personalNumber: this.parsedData.personalNumber,
+    });
+  }
+
+  saveData() {
+    console.log('Saving data:', this.passportForm.value);
+    // Add logic to save data
+  }
+
+  discardData() {
+    console.log('Discarding data');
+    this.capturedImage = undefined;
+    this.parsedData = {};
+    this.passportForm.reset();
   }
 }
