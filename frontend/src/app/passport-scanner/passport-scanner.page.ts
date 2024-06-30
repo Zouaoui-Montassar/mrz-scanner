@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Camera, CameraResultType } from '@capacitor/camera';
 import * as Tesseract from "tesseract.js";
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { PassportService } from '../services/passport.service';
+
+
 @Component({
   selector: 'app-passport-scanner',
   templateUrl: './passport-scanner.page.html',
@@ -18,7 +21,8 @@ export class PassportScannerPage {
   isLoading = false;
   passportForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+
+  constructor(private fb: FormBuilder, private passportService: PassportService) {
     this.passportForm = this.fb.group({
       type: [''],
       country: [''],
@@ -35,7 +39,10 @@ export class PassportScannerPage {
 
   ngOnInit() {}
 
-
+  isValidParsedData(): boolean {
+    return this.parsedData && Object.keys(this.parsedData).length > 0;
+  }
+  
   async takePicture() {
     try {
       const image = await Camera.getPhoto({
@@ -270,6 +277,14 @@ export class PassportScannerPage {
 
   saveData() {
     console.log('Saving data:', this.passportForm.value);
+    this.passportService.addPassport(this.passportForm.value).subscribe(
+      response => {
+        console.log('Passport data saved successfully:', response);
+      },
+      error => {
+        console.error('Error saving passport data:', error);
+      }
+    );
   }
 
   discardData() {

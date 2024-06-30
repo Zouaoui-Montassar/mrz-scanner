@@ -82,7 +82,7 @@
               <ion-button color="danger" expand="full" (click)="discardData()">Réinitialiser </ion-button>
             </ion-col>
             <ion-col>
-              <ion-button type="submit" expand="full">Sauvegarder</ion-button>
+              <ion-button type="submit" expand="full" [disabled]="!isValidParsedData()">Sauvegarder</ion-button>
             </ion-col>
             
           </ion-row>
