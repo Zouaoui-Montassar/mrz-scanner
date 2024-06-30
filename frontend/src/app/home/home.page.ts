@@ -29,11 +29,11 @@ export class HomePage {
       this.capturedImage = image.dataUrl;
       this.imageLoadError = false;
 
-      if (this.capturedImage) {
+      /* if (this.capturedImage) {
         console.log('Starting OCR process...');
         this.rescaledImage = await this.rescaleImageTo300DPI(this.capturedImage);
         this.recognizeMRZ();
-      }
+      } */
     } catch (error) {
       console.error('Error capturing image', error);
       this.capturedImage = undefined;
@@ -45,7 +45,7 @@ export class HomePage {
     this.capturedImage = undefined;
     this.imageLoadError = true;
   }
-
+/* 
   async recognizeMRZ() {
     if (this.rescaledImage) {
       try {
@@ -227,5 +227,5 @@ export class HomePage {
       personalNumberCheckDigit,
       compositeCheckDigit,
     };
-  }
+  } */
 }

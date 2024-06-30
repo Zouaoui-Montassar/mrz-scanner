@@ -4,14 +4,42 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar color="primary">
-      <ion-title size="large">Identite Scanner</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <h2>TD1 ID CARD</h2>
+        
+      </ion-col>
+    </ion-row>
 
-  <div id="container">
-    <ion-text>carte identité</ion-text>
-  </div>
+    <ion-row>
+      <ion-col>
+        <p>Prendre une photo du passport pour extraire les informations a partir du code MRZ.</p>
+        <ion-button (click)="takePicture()">Prendre une photo</ion-button>
+        <div *ngIf="capturedImage">
+          <h2>Image Capturée :</h2>
+          <img [src]="capturedImage" (error)="onImageError()" />
+          <ion-text *ngIf="imageLoadError" color="danger">
+            Erreur de chargement de l'image. Veuillez réessayer.
+          </ion-text>
+        </div> 
+         <!-- <div *ngIf="!capturedImage && !imageLoadError">
+          <ion-text> Aucune image capturée pour l'instant !</ion-text>
+        </div>  -->
+        
+         <div *ngIf="rescaledImage">
+          <h2>Image Redimensionnée :</h2>
+          <img [src]="rescaledImage" alt="Rescaled Image" />
+        </div>
+        
+        <div *ngIf="ocrText">
+          <h2>Texte OCR :</h2>
+          <pre>{{ ocrText }}</pre>
+        </div>
+        
+
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>
