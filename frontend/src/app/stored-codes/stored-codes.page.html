@@ -11,19 +11,29 @@
     </ion-toolbar>
   </ion-header>
 
-  <div id="container">
-    <ion-list>
-      <ion-item *ngFor="let passport of passports">
-        <ion-label>
-          <h2>{{ passport.surname }} {{ passport.givenNames }}</h2>
-          <p>{{ passport.passportNumber }}</p>
-          <p>{{ passport.type }} - {{ passport.country }}</p>
-          <p>{{ passport.nationality }}</p>
-          <p>{{ passport.dateOfBirth }} - {{ passport.sex }}</p>
-          <p>{{ passport.dateOfExpiry }}</p>
-          <p>{{ passport.personalNumber }}</p>
-        </ion-label>
-      </ion-item>
-    </ion-list>
-  </div>
+  <ion-list *ngIf="passports.length > 0; else loadingOrError">
+    <ion-item *ngFor="let passport of passports">
+      <ion-label>
+        <h2>{{ passport.surname }} {{ passport.givenNames }}</h2>
+        <p>{{ passport.passportNumber }}</p>
+        <p>{{ passport.type }} - {{ passport.country }}</p>
+        <p>{{ passport.nationality }}</p>
+        <p>{{ passport.dateOfBirth }} - {{ passport.sex }}</p>
+        <p>{{ passport.dateOfExpiry }}</p>
+        <p>{{ passport.personalNumber }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <ng-template #loadingOrError>
+    <ion-spinner name="lines-sharp" *ngIf="loading"></ion-spinner>
+    <div *ngIf="!loading && !passports.length">
+      <p>No stored passports found.</p>
+    </div>
+    <div *ngIf="error">
+      <p>No passports !</p>
+      <p>Error :</p>
+      <p>{{ errorText }}</p>
+    </div>
+  </ng-template>
 </ion-content>
