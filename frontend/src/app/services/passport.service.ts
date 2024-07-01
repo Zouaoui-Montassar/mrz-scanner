@@ -1,41 +1,27 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, from } from 'rxjs';
-import { Http,HttpOptions } from '@capacitor-community/http';
-import { request } from 'http';
-
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environementVARS';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class PassportService {
-  private apiUrl = 'http://localhost:8200/passports';
+  private apiUrl = environment.apiUrl; // 10.0.2.2 => ip address of the emulator
 
   constructor(private http: HttpClient) { }
-/* 
-  addPassport(passportData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/add`, passportData);
-  } */
 
-  getPassports() {
-    const requestURL = `${this.apiUrl}/get`;
-    const options : HttpOptions = {
-      url : requestURL,
-    };
-    return from (Http.get(options));
+  getPassports(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/get`);
   }
+
   addPassport(passportData: any): Observable<any> {
-    const requestURL = `${this.apiUrl}/add`;
-    const options: HttpOptions = {
-      url: requestURL,
-      method: 'POST',
-      data: passportData, 
-      headers: {
-        'Content-Type': 'application/json' 
-      }
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
     };
-    console.log("Data to be added:", passportData);
-    return from(Http.post(options));
+    return this.http.post<any>(`${this.apiUrl}/add`, passportData, httpOptions);
   }
 }
