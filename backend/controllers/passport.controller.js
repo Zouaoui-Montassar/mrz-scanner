@@ -2,8 +2,12 @@ const Passport = require('../models/passport.model');
 
 const addPassport = async (req, res) => {
   try {
+    console.log(req.data)
+    console.log('Incoming request body:', req.body);
+
     const newPassport = new Passport(req.body);
     const savedPassport = await newPassport.save();
+
     res.status(201).json({
       success: true,
       message: 'Passport data saved successfully',
@@ -14,10 +18,11 @@ const addPassport = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to save passport data',
-      error: err.message, 
+      error: err.message,
     });
   }
 };
+
 
 const getPassports = async (req, res) => {
   try {

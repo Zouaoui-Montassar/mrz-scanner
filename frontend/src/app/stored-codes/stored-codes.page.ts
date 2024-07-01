@@ -6,24 +6,20 @@ import { PassportService } from '../services/passport.service';
   templateUrl: './stored-codes.page.html',
   styleUrls: ['./stored-codes.page.scss'],
 })
-export class StoredCodesPage implements OnInit {
+export class StoredCodesPage {
   passports: any[] = [];
 
   constructor(private passportService: PassportService) {}
 
-  ngOnInit() {
+  ionViewWillEnter() {
     this.loadPassports();
   }
 
   loadPassports() {
-    this.passportService.getPassports().subscribe(
-      (data: any) => {
-        this.passports = data.data as any[]; 
-      },
-      error => {
-        console.error('Error fetching passport data', error);
-      }
-    );
+    this.passportService.getPassports().subscribe((res:any) => {
+      console.log("data: ",res);
+      this.passports=res.data.data;
+    })
   }
   
   
