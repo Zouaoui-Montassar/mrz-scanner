@@ -3,6 +3,7 @@ import { Camera, CameraResultType } from '@capacitor/camera';
 import * as Tesseract from "tesseract.js";
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { PassportService } from '../services/passport.service';
+import { AlertController, LoadingController } from '@ionic/angular';
 
 
 @Component({
@@ -20,9 +21,14 @@ export class PassportScannerPage {
   parsedData: any = {};
   isLoading = false;
   passportForm: FormGroup;
+  canSubmit = false;
 
-
-  constructor(private fb: FormBuilder, private passportService: PassportService) {
+  constructor(
+    private fb: FormBuilder, 
+    private passportService: PassportService,
+    private loadingController: LoadingController,
+    private alertController: AlertController
+  ) {
     this.passportForm = this.fb.group({
       type: [''],
       country: [''],
@@ -36,8 +42,6 @@ export class PassportScannerPage {
       personalNumber: [''],
     });
   }
-
-  ngOnInit() {}
 
   isValidParsedData(): boolean {
     return this.parsedData && Object.keys(this.parsedData).length > 0;
@@ -261,6 +265,7 @@ export class PassportScannerPage {
   }
 
   updateForm() {
+    this.canSubmit = true ;
     this.passportForm.setValue({
       type: this.parsedData.type,
       country: this.parsedData.country,
@@ -275,22 +280,77 @@ export class PassportScannerPage {
     });
   }
 
-  saveData() {
-    console.log('Saving data:', this.passportForm.value);
-    this.passportService.addPassport(this.passportForm.value).subscribe(
-      response => {
-        console.log('Passport data saved successfully:', response);
-      },
-      error => {
-        console.error('Error saving passport data:', error);
-      }
-    );
+  async saveData() {
+    const confirmAlert = await this.alertController.create({
+      header: 'Confirm',
+      message: 'Do you want to save the data?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+            console.log('Save canceled');
+          }
+        },
+        {
+          text: 'Save',
+          handler: async () => {
+            console.log('Saving data:', this.passportForm.value);
+            this.canSubmit = false;
+            const loadingAlert = await this.presentLoading();
+            this.passportService.addPassport(this.passportForm.value).subscribe(
+              async response => {
+                console.log('Passport data saved successfully:', response);
+                await loadingAlert.dismiss();
+                await this.presentSuccessAlert();
+              },
+              async error => {
+                console.error('Error saving passport data:', error);
+                await loadingAlert.dismiss();
+                await this.presentErrorAlert();
+                this.canSubmit = true;
+              }
+            );
+          }
+        }
+      ]
+    });
+  
+    await confirmAlert.present();
   }
-
+  
   discardData() {
     console.log('Discarding data');
     this.capturedImage = undefined;
     this.parsedData = {};
     this.passportForm.reset();
+    this.canSubmit = false ;
   }
+  async presentLoading() {
+    const loading = await this.loadingController.create({
+      message: 'Submitting...',
+      spinner: 'crescent',
+    });
+    await loading.present();
+    return loading;
+  }
+  
+  async presentSuccessAlert() {
+    const successAlert = document.createElement('ion-alert');
+    successAlert.header = 'Success';
+    successAlert.message = 'Passport data saved successfully.';
+    successAlert.buttons = ['OK'];
+    document.body.appendChild(successAlert);
+    await successAlert.present();
+  }
+  
+  async presentErrorAlert() {
+    const errorAlert = document.createElement('ion-alert');
+    errorAlert.header = 'Error';
+    errorAlert.message = 'An error occurred while saving passport data.Please try again';
+    errorAlert.buttons = ['OK'];
+    document.body.appendChild(errorAlert);
+    await errorAlert.present();
+  }
+  
 }
